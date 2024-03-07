@@ -525,6 +525,45 @@ public enum SuiError {
     // Simple error enums only carry a message
     case InvalidSignature(message: String)
     
+    // Simple error enums only carry a message
+    case InvalidSecreteKey(message: String)
+    
+    // Simple error enums only carry a message
+    case JwtParseValidationError(message: String)
+    
+    // Simple error enums only carry a message
+    case SeedAddressGenError(message: String)
+    
+    // Simple error enums only carry a message
+    case ZkLoginAddressGenError(message: String)
+    
+    // Simple error enums only carry a message
+    case AddressByteParseError(message: String)
+    
+    // Simple error enums only carry a message
+    case InvalidPublicKey(message: String)
+    
+    // Simple error enums only carry a message
+    case NonceGenerationFailed(message: String)
+    
+    // Simple error enums only carry a message
+    case InvalidB64Encoding(message: String)
+    
+    // Simple error enums only carry a message
+    case InvalidHexEncoding(message: String)
+    
+    // Simple error enums only carry a message
+    case KeyDerivationFailed(message: String)
+    
+    // Simple error enums only carry a message
+    case WordlistError(message: String)
+    
+    // Simple error enums only carry a message
+    case InvalidWordlist(message: String)
+    
+    // Simple error enums only carry a message
+    case MalformedInput(message: String)
+    
 
     fileprivate static func uniffiErrorHandler(_ error: RustBuffer) throws -> Error {
         return try FfiConverterTypeSuiError.lift(error)
@@ -562,6 +601,58 @@ public struct FfiConverterTypeSuiError: FfiConverterRustBuffer {
             message: try FfiConverterString.read(from: &buf)
         )
         
+        case 6: return .InvalidSecreteKey(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 7: return .JwtParseValidationError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 8: return .SeedAddressGenError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 9: return .ZkLoginAddressGenError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 10: return .AddressByteParseError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 11: return .InvalidPublicKey(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 12: return .NonceGenerationFailed(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 13: return .InvalidB64Encoding(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 14: return .InvalidHexEncoding(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 15: return .KeyDerivationFailed(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 16: return .WordlistError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 17: return .InvalidWordlist(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 18: return .MalformedInput(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
 
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -583,6 +674,32 @@ public struct FfiConverterTypeSuiError: FfiConverterRustBuffer {
             writeInt(&buf, Int32(4))
         case .InvalidSignature(_ /* message is ignored*/):
             writeInt(&buf, Int32(5))
+        case .InvalidSecreteKey(_ /* message is ignored*/):
+            writeInt(&buf, Int32(6))
+        case .JwtParseValidationError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(7))
+        case .SeedAddressGenError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(8))
+        case .ZkLoginAddressGenError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(9))
+        case .AddressByteParseError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(10))
+        case .InvalidPublicKey(_ /* message is ignored*/):
+            writeInt(&buf, Int32(11))
+        case .NonceGenerationFailed(_ /* message is ignored*/):
+            writeInt(&buf, Int32(12))
+        case .InvalidB64Encoding(_ /* message is ignored*/):
+            writeInt(&buf, Int32(13))
+        case .InvalidHexEncoding(_ /* message is ignored*/):
+            writeInt(&buf, Int32(14))
+        case .KeyDerivationFailed(_ /* message is ignored*/):
+            writeInt(&buf, Int32(15))
+        case .WordlistError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(16))
+        case .InvalidWordlist(_ /* message is ignored*/):
+            writeInt(&buf, Int32(17))
+        case .MalformedInput(_ /* message is ignored*/):
+            writeInt(&buf, Int32(18))
 
         
         }
@@ -594,18 +711,18 @@ extension SuiError: Equatable, Hashable {}
 
 extension SuiError: Error { }
 
-public func decodeBase64(data: String)  -> Data {
-    return try!  FfiConverterData.lift(
-        try! rustCall() {
+public func decodeBase64(data: String) throws -> Data {
+    return try  FfiConverterData.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
     uniffi_suiness_fn_func_decode_base64(
         FfiConverterString.lower(data),$0)
 }
     )
 }
 
-public func decodeHex(data: String)  -> Data {
-    return try!  FfiConverterData.lift(
-        try! rustCall() {
+public func decodeHex(data: String) throws -> Data {
+    return try  FfiConverterData.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
     uniffi_suiness_fn_func_decode_hex(
         FfiConverterString.lower(data),$0)
 }
@@ -641,9 +758,9 @@ public func encodeHex(data: Data)  -> String {
     )
 }
 
-public func generateNonce(pk: String, maxEpoch: UInt64, randomness: String)  -> String {
-    return try!  FfiConverterString.lift(
-        try! rustCall() {
+public func generateNonce(pk: String, maxEpoch: UInt64, randomness: String) throws -> String {
+    return try  FfiConverterString.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
     uniffi_suiness_fn_func_generate_nonce(
         FfiConverterString.lower(pk),
         FfiConverterUInt64.lower(maxEpoch),
@@ -660,13 +777,22 @@ public func generateRandomness()  -> String {
     )
 }
 
-public func generateZkLoginAddress(provider: OidcProvider, jwt: String, salt: String)  -> String {
-    return try!  FfiConverterString.lift(
-        try! rustCall() {
+public func generateZkLoginAddress(provider: OidcProvider, jwt: String, salt: String) throws -> String {
+    return try  FfiConverterString.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
     uniffi_suiness_fn_func_generate_zk_login_address(
         FfiConverterTypeOIDCProvider.lower(provider),
         FfiConverterString.lower(jwt),
         FfiConverterString.lower(salt),$0)
+}
+    )
+}
+
+public func getExtendedEphemeralPublicKey(sk: String) throws -> String {
+    return try  FfiConverterString.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
+    uniffi_suiness_fn_func_get_extended_ephemeral_public_key(
+        FfiConverterString.lower(sk),$0)
 }
     )
 }
@@ -686,10 +812,10 @@ private var initializationResult: InitializationResult {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if (uniffi_suiness_checksum_func_decode_base64() != 42280) {
+    if (uniffi_suiness_checksum_func_decode_base64() != 50529) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_suiness_checksum_func_decode_hex() != 18888) {
+    if (uniffi_suiness_checksum_func_decode_hex() != 38968) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_suiness_checksum_func_derive_new_key() != 6820) {
@@ -701,13 +827,16 @@ private var initializationResult: InitializationResult {
     if (uniffi_suiness_checksum_func_encode_hex() != 12627) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_suiness_checksum_func_generate_nonce() != 61793) {
+    if (uniffi_suiness_checksum_func_generate_nonce() != 27972) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_suiness_checksum_func_generate_randomness() != 2431) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_suiness_checksum_func_generate_zk_login_address() != 43247) {
+    if (uniffi_suiness_checksum_func_generate_zk_login_address() != 24070) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_suiness_checksum_func_get_extended_ephemeral_public_key() != 22990) {
         return InitializationResult.apiChecksumMismatch
     }
 
