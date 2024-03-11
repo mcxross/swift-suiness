@@ -788,11 +788,11 @@ public func genAddressSeed(salt: String, name: String, value: String, aud: Strin
     )
 }
 
-public func generateNonce(pk: String, maxEpoch: UInt64, randomness: String) throws -> String {
+public func generateNonce(sk: String, maxEpoch: UInt64, randomness: String) throws -> String {
     return try  FfiConverterString.lift(
         try rustCallWithError(FfiConverterTypeSuiError.lift) {
     uniffi_suiness_fn_func_generate_nonce(
-        FfiConverterString.lower(pk),
+        FfiConverterString.lower(sk),
         FfiConverterUInt64.lower(maxEpoch),
         FfiConverterString.lower(randomness),$0)
 }
@@ -872,7 +872,7 @@ private var initializationResult: InitializationResult {
     if (uniffi_suiness_checksum_func_gen_address_seed() != 17526) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_suiness_checksum_func_generate_nonce() != 27972) {
+    if (uniffi_suiness_checksum_func_generate_nonce() != 10366) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_suiness_checksum_func_generate_randomness() != 2431) {

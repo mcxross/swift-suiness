@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [ ],
     targets: [
         .binaryTarget(name: "RustFramework", url: "https://github.com/mcxross/swift-suiness/releases/download/v0.1.3-beta/RustFramework.xcframework-v0.1.3-beta.zip",
-                     checksum: "a962f412129be4956170b684840248aa52ae8c168515d63acbd53162754633c8"),
+                     checksum: "7ecc10d391546ab459f63af53fecba4987c2b784491340f3c832907547a5e12b"),
         .target(
             name: "Suiness",
             dependencies: [
