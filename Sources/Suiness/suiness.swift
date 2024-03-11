@@ -564,6 +564,12 @@ public enum SuiError {
     // Simple error enums only carry a message
     case MalformedInput(message: String)
     
+    // Simple error enums only carry a message
+    case ZkLoginInputsError(message: String)
+    
+    // Simple error enums only carry a message
+    case BcsError(message: String)
+    
 
     fileprivate static func uniffiErrorHandler(_ error: RustBuffer) throws -> Error {
         return try FfiConverterTypeSuiError.lift(error)
@@ -653,6 +659,14 @@ public struct FfiConverterTypeSuiError: FfiConverterRustBuffer {
             message: try FfiConverterString.read(from: &buf)
         )
         
+        case 19: return .ZkLoginInputsError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 20: return .BcsError(
+            message: try FfiConverterString.read(from: &buf)
+        )
+        
 
         default: throw UniffiInternalError.unexpectedEnumCase
         }
@@ -700,6 +714,10 @@ public struct FfiConverterTypeSuiError: FfiConverterRustBuffer {
             writeInt(&buf, Int32(17))
         case .MalformedInput(_ /* message is ignored*/):
             writeInt(&buf, Int32(18))
+        case .ZkLoginInputsError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(19))
+        case .BcsError(_ /* message is ignored*/):
+            writeInt(&buf, Int32(20))
 
         
         }
@@ -758,6 +776,18 @@ public func encodeHex(data: Data)  -> String {
     )
 }
 
+public func genAddressSeed(salt: String, name: String, value: String, aud: String) throws -> String {
+    return try  FfiConverterString.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
+    uniffi_suiness_fn_func_gen_address_seed(
+        FfiConverterString.lower(salt),
+        FfiConverterString.lower(name),
+        FfiConverterString.lower(value),
+        FfiConverterString.lower(aud),$0)
+}
+    )
+}
+
 public func generateNonce(pk: String, maxEpoch: UInt64, randomness: String) throws -> String {
     return try  FfiConverterString.lift(
         try rustCallWithError(FfiConverterTypeSuiError.lift) {
@@ -797,6 +827,18 @@ public func getExtendedEphemeralPublicKey(sk: String) throws -> String {
     )
 }
 
+public func getZkLoginSig(value: String, addressSeed: String, maxEpoch: UInt64, userSig: String) throws -> String {
+    return try  FfiConverterString.lift(
+        try rustCallWithError(FfiConverterTypeSuiError.lift) {
+    uniffi_suiness_fn_func_get_zk_login_sig(
+        FfiConverterString.lower(value),
+        FfiConverterString.lower(addressSeed),
+        FfiConverterUInt64.lower(maxEpoch),
+        FfiConverterString.lower(userSig),$0)
+}
+    )
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -827,6 +869,9 @@ private var initializationResult: InitializationResult {
     if (uniffi_suiness_checksum_func_encode_hex() != 12627) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_suiness_checksum_func_gen_address_seed() != 17526) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_suiness_checksum_func_generate_nonce() != 27972) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -837,6 +882,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_suiness_checksum_func_get_extended_ephemeral_public_key() != 22990) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_suiness_checksum_func_get_zk_login_sig() != 18901) {
         return InitializationResult.apiChecksumMismatch
     }
 
